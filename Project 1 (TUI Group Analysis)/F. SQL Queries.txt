@@ -1,0 +1,81 @@
+--1 What is the first, middle and last name and the car type of all the customers who booked a car rental? 
+SELECT P.First_name, P.Middle_name, P.Last_name, CR.Type
+FROM Person AS P JOIN Customer AS C ON P.Person_ID = C.C_Person_ID
+JOIN Booking AS B ON C.C_Person_ID = B.C_Person_ID
+JOIN Car_Rental AS CR ON B.Booking_ID = CR.Booking_ID
+
+--2 How many distinct accommodations does TUI have?
+SELECT count(DISTINCT Acc_ID) AS 'Number of Accommodations'
+FROM Accommodation
+
+--3 Which TUI locations have WiFi and a pool?
+SELECT L.* 
+FROM Location AS L JOIN Accommodation AS A ON L.Location_ID = A.Location_ID
+JOIN Accomodation_services AS ACCS ON A.Acc_ID = ACCS.Acc_ID
+WHERE WiFi=1 and Pool=1
+
+--4 Show an overview of flight_ID's and the corresponding aircraft type
+SELECT f.Flight_ID, a.Type
+FROM Flight AS f JOIN Aircraft AS a ON a.Aircraft_ID = f.Aircraft_ID
+
+--5 With how many cruise companies is TUI working?
+SELECT count(distinct Company_ID) AS Total_Companies
+FROM Cruise_liner
+
+--6 How many customers do not have a middle name? 
+SELECT COUNT(p.Person_ID) AS 'Customers without middle name'
+FROM Person AS p JOIN Customer AS c ON p.Person_ID=c.C_Person_ID
+WHERE p.Middle_name IS NULL
+
+--7 Which customers have made more than one payment?
+SELECT p.First_name, p.Last_name, c.C_Person_ID, COUNT (c.C_Person_ID) AS Number_of_payments
+FROM Customer as c JOIN Booking as b on c.C_Person_ID = b.C_Person_ID
+JOIN Person as p on c.C_Person_ID = p.Person_ID
+GROUP by c.C_Person_ID
+HAVING Number_of_payments >= 2
+
+--8 What is the average group size? 
+SELECT ROUND(AVG (Group_size)) AS 'Rounded average group size', AVG(group_size) AS 'Average group size'
+FROM Booking
+
+--9 What is the most popular accommodation? 
+SELECT a.Acc_ID, count(a.Acc_id) AS 'Number of bookings' 
+FROM Accommodation AS A
+LEFT JOIN Placement AS p ON A.Acc_ID = p.Acc_ID
+GROUP BY a.Acc_ID
+ORDER BY COUNT(a.Acc_id) DESC
+LIMIT 1
+
+--10 Has anyone made a reservation for a stay in Rome?
+SELECT b.*
+FROM Booking AS b
+JOIN Location AS l ON b.Location_ID = l.Location_ID
+WHERE l.City = 'Rome' 
+
+--11 Which customers also have insurance? 
+SELECT DISTINCT a.first_name|| ' ' || a.last_name AS full_name
+FROM person AS a 
+JOIN customer AS b ON a.person_id = b.c_person_id
+JOIN insurance AS c ON b.c_person_id = c.c_person_id
+
+--12 Which customers do not have  insurance? 
+SELECT DISTINCT a.first_name|| ' ' || a.last_name AS full_name
+FROM person AS a JOIN customer AS b ON a.person_id = b.c_person_id
+WHERE full_name NOT IN
+(SELECT DISTINCT a.first_name|| ' ' || a.last_name AS full_name
+FROM person AS a 
+JOIN customer AS b ON a.person_id = b.c_person_id
+JOIN insurance AS c ON b.c_person_id = c.c_person_id)
+
+--13 What is/are the name(s) and email(s) of the subcontractor(s) who offer cleaning services?
+SELECT p.First_Name, p.Middle_Name, p.Last_Name, p.Email
+FROM Person AS p JOIN Subcontractor AS s ON p.Person_ID=s.S_Person_ID
+WHERE Business_type IS 'Cleaning'
+
+--14 What is the average total price of all the bookings? 
+SELECT AVG(Total_price) AS Total_average_price
+FROM Booking
+
+--15 What is the average booking price per person?
+SELECT AVG(Total_price / Group_size) AS Average_price_per_person
+FROM Booking
